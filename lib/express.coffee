@@ -6,7 +6,8 @@ module.exports = (container, callback) ->
   unloader = container.get "unloader"
   loader = container.get "loader"
   logger = container.get "logger"
-  port = container.get "port", process.env.PORT or 3000
+  container.set "port", process.env.PORT or 3000 unless container.get "port"
+  port = container.get "port"
 
   logger.info "loading plugin", "contrib-express"
 
