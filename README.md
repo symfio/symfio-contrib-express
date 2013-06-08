@@ -13,26 +13,22 @@ symfio = require "symfio"
 container = symfio "example", __dirname
 container.set "port", 80
 
-loader = container.get "loader"
+container.use require "symfio-contrib-express"
 
-loader.use require "symfio-contrib-express"
-
-loader.use (container, callback) ->
-  app = container.get "app"
-
+container.use (app) ->
   app.get "/", (req, res) ->
     res.send "Hello World!"
 
-loader.load()
+container.load()
 ```
 
 ## Provides
 
+* __express__ — Original express module.
 * __app__ — Express application.
 * __server__ — `http.Server` instance for express application.
-* __express__ — Original express module.
 
 ## Can be configured
 
-* __port__ - Port for listening. Default value received from `process.env.PORT`.
-  If `process.env.PORT` is undefined then default value is `3000`.
+* __autoload__ - Listen port after loading. Default is `true`.
+* __port__ - Port for listening. Default value is `3000`.

@@ -2,33 +2,27 @@ express = require "express"
 http = require "http"
 
 
-module.exports = (container, callback) ->
-  unloader = container.get "unloader"
-  loader = container.get "loader"
-  logger = container.get "logger"
-  container.set "port", process.env.PORT or 3000 unless container.get "port"
-  port = container.get "port"
+module.exports = (container, autoload = true, port = 3000) ->
+  container.set "port", port
 
-  logger.info "loading plugin", "contrib-express"
+  container.set "express", ->
+    express
 
-  app = express()
+  container.set "app", (express) ->
+    app = express()
 
-  app.use express.bodyParser()
+    app.configure ->
+      app.use express.bodyParser()
 
-  app.configure "development", ->
-    app.use express.errorHandler()
+    app.configure "development", ->
+      app.use express.errorHandler()
 
-  server = http.createServer app
+    app
 
-  container.set "app", app
-  container.set "server", server
-  container.set "express", express
+  container.set "server", (app) ->
+    http.createServer app
 
-  loader.once "loaded", ->
-    server.listen port, ->
-      logger.info "listening", port, "express"
-
-  unloader.register (callback) ->
-    server.close callback
-
-  callback()
+  if autoload
+    container.on "loaded", ->
+      container.call (server, port) ->
+        server.listen port
