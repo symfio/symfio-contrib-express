@@ -15,9 +15,10 @@ container.set "port", 80
 
 container.use require "symfio-contrib-express"
 
-container.use (app) ->
-  app.get "/", (req, res) ->
-    res.send "Hello World!"
+container.use (get) ->
+  get "/", ->
+    (req, res) ->
+      res.send "Hello World!"
 
 container.load()
 ```
@@ -27,6 +28,7 @@ container.load()
 * __express__ — Original express module.
 * __app__ — Express application.
 * __server__ — `http.Server` instance for express application.
+* __get__ — wrapped `app.get` method. Last arguments must be controller factory. Other HTTP methods like `post` and `delete` also provided.
 
 ## Can be configured
 
