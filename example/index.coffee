@@ -3,7 +3,7 @@ symfio = require "symfio"
 
 module.exports = container = symfio "example", __dirname
 
-container.injectAll [
+module.exports.promise = container.injectAll [
   require "symfio-contrib-winston"
   require ".."
 

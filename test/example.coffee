@@ -12,7 +12,9 @@ describe "contrib-express example", ->
 
   describe "GET /ping", ->
     it "should respond with pong", (callback) ->
-      container.get("app").then (app) ->
+      container.promise.then ->
+        container.get "app"
+      .then (app) ->
         deferred = w.defer()
         chai.request(app).get("/ping").res deferred.resolve
         deferred.promise
