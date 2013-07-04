@@ -3,12 +3,17 @@ symfio = require "symfio"
 
 module.exports = container = symfio "example", __dirname
 
-container.use require "symfio-contrib-winston"
-container.use require ".."
+container.injectAll [
+  require "symfio-contrib-winston"
+  require ".."
 
-container.use (get) ->
-  get "/ping", ->
-    (req, res) ->
-      res.send "pong"
+  (get) ->
+    get "/ping", ->
+      (req, res) ->
+        res.send "pong"
+]
 
-container.load() if require.main is module
+
+if require.main is module
+  container.get("listener").then (listener) ->
+    listener.listen()

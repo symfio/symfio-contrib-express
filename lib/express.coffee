@@ -2,8 +2,23 @@ methods = require "methods"
 http = require "http"
 
 
-module.exports = (container, autoload = true) ->
+module.exports = (container) ->
   container.unless "port", 3000
+
+  container.unless "middlewares", (env, logger, express) ->
+    middlewares = []
+
+    logger.debug "use express middleware", name: "bodyParser"
+    middlewares.push express.bodyParser()
+
+    logger.debug "use express middleware", name: "logger"
+    middlewares.push express.logger "symfio"
+
+    if env is "development"
+      logger.debug "use express middleware", name: "errorHandler"
+      middlewares.push express.errorHandler()
+
+    middlewares
 
   container.set "express", (logger) ->
     logger.debug "require module", name: "express"
@@ -19,25 +34,19 @@ module.exports = (container, autoload = true) ->
 
     express
 
-  container.set "app", (env, logger, express) ->
+  container.set "app", (env, middlewares, express) ->
     app = express()
-
     app.set "env", env
-
-    app.configure ->
-      logger.debug "use express middleware", name: "bodyParser"
-      app.use express.bodyParser()
-      logger.debug "use express middleware", name: "logger"
-      app.use express.logger "symfio"
-
-    app.configure "development", ->
-      logger.debug "use express middleware", name: "errorHandler"
-      app.use express.errorHandler()
-
+    app.use middleware for middleware in middlewares
     app
 
   container.set "server", (app) ->
     http.createServer app
+
+  container.set "listener", (logger, server, port) ->
+    listen: ->
+      server.listen port, ->
+        logger.info "listen port", port: port
 
   methods.forEach (method) ->
     container.set method, (app, logger) ->
@@ -47,12 +56,6 @@ module.exports = (container, autoload = true) ->
 
         logger.debug "define controller", method: method, url: arguments[0]
 
-        container.call(factory).then (controller) ->
+        container.inject(factory).then (controller) ->
           argumentsArray.push controller
           app[method].apply app, argumentsArray
-
-  if autoload
-    container.on "loaded", ->
-      container.call (logger, server, port) ->
-        server.listen port, ->
-          logger.info "listen port", port: port

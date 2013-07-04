@@ -1,4 +1,3 @@
-plugin = require ".."
 symfio = require "symfio"
 chai = require "chai"
 
@@ -8,11 +7,7 @@ describe "contrib-express plugin", ->
   chai.should()
 
   container = symfio "example", __dirname
-
-  before (callback) ->
-    container.set "autoload", false
-    container.use plugin
-    container.load().should.notify callback
+  container.inject require ".."
 
   it "should use bodyParser", (callback) ->
     container.get("app").then (app) ->

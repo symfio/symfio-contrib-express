@@ -8,11 +8,7 @@ describe "contrib-express example", ->
   chai.should()
 
   container = require "../example"
-
-  before (callback) ->
-    container.set "autoload", false
-    container.set "env", "test"
-    container.load().should.notify callback
+  container.set "env", "test"
 
   describe "GET /ping", ->
     it "should respond with pong", (callback) ->
