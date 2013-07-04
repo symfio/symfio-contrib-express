@@ -3,6 +3,7 @@ symfio = require "symfio"
 
 module.exports = container = symfio "example", __dirname
 
+container.use require "symfio-contrib-winston"
 container.use require ".."
 
 container.use (get) ->

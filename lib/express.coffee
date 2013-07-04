@@ -37,3 +37,14 @@ module.exports = (container, autoload = true, port = 3000) ->
     container.on "loaded", ->
       container.call (server, port) ->
         server.listen port
+
+  container.call (logger, express, app) ->
+    if logger
+      express.logger.format "symfio", (tokens, req, res) ->
+        logger.info "incoming http request",
+          method: req.method
+          url: req.originalUrl
+          status: res.statusCode
+          time: new Date - req._startTime
+
+      app.use express.logger "symfio"
