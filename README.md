@@ -1,6 +1,6 @@
 # symfio-contrib-express
 
-> Express application.
+> Express plugin for Symfio.
 
 [![Build Status](http://teamcity.rithis.com/httpAuth/app/rest/builds/buildType:id:bt8,branch:master/statusIcon?guest=1)](http://teamcity.rithis.com/viewType.html?buildTypeId=bt8&guest=1)
 [![Dependency Status](https://gemnasium.com/symfio/symfio-contrib-express.png)](https://gemnasium.com/symfio/symfio-contrib-express)
