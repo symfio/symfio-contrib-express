@@ -2,8 +2,8 @@ methods = require "methods"
 http = require "http"
 
 
-module.exports = (container, autoload = true, port = 3000) ->
-  container.set "port", port
+module.exports = (container, autoload = true) ->
+  container.unless "port", 3000
 
   container.set "express", (logger) ->
     logger.debug "require module", name: "express"
