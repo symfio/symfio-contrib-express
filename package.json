@@ -1,6 +1,6 @@
 {
   "name": "symfio-contrib-express"
-, "version": "2.0.0-beta.2"
+, "version": "2.0.0-beta.3"
 , "description": "Launch express application after all plugins is loaded."
 , "keywords": ["symfio-plugin", "symfio-contrib", "express"]
 , "homepage": "http://symf.io/plugins/contrib-express"
