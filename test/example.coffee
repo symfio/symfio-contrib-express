@@ -10,11 +10,12 @@ describe "contrib-express example", ->
   container = require "../example"
   container.set "env", "test"
 
+  before (callback) ->
+    container.promise.should.notify callback
+
   describe "GET /ping", ->
     it "should respond with pong", (callback) ->
-      container.promise.then ->
-        container.get "app"
-      .then (app) ->
+      container.get("app").then (app) ->
         deferred = w.defer()
         chai.request(app).get("/ping").res deferred.resolve
         deferred.promise
