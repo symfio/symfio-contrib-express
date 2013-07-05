@@ -1,6 +1,6 @@
 {
   "name": "symfio-contrib-express"
-, "version": "2.0.1"
+, "version": "2.0.2"
 , "description": "Express plugin for Symfio."
 , "keywords": ["symfio-plugin", "symfio-contrib", "express"]
 , "homepage": "http://symf.io/plugins/contrib-express"
