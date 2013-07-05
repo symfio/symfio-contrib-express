@@ -1,5 +1,6 @@
 methods = require "methods"
 http = require "http"
+w = require "when"
 
 
 module.exports = (container) ->
@@ -45,8 +46,13 @@ module.exports = (container) ->
 
   container.set "listener", (logger, server, port) ->
     listen: ->
+      deffered = w.defer()
+
       server.listen port, ->
         logger.info "listen port", port: port
+        deffered.resolve()
+
+      deffered.promise
 
   methods.forEach (method) ->
     container.set method, (app, logger) ->
