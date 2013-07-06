@@ -28,11 +28,7 @@
 , "devDependencies": {
     "symfio": "~2.0"
   , "symfio-contrib-winston": "~2.0"
-  , "chai": "~1.7"
-  , "chai-as-promised": "~3.3"
-  , "chai-http": "~0.4"
-  , "sinon": "~1.7"
-  , "sinon-chai": "~2.4"
+  , "symfio-suite": "~2.0"
   , "grunt": "~0.4"
   , "grunt-simple-mocha": "~0.4"
   , "grunt-coffeelint": "~0.0"
