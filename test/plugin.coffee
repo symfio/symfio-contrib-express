@@ -2,7 +2,7 @@ symfio = require "symfio"
 chai = require "chai"
 
 
-describe "contrib-express plugin", ->
+describe "contrib-express()", ->
   chai.use require "chai-as-promised"
   chai.should()
 
