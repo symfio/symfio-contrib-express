@@ -104,16 +104,12 @@ describe "contrib-express()", ->
 
   methods.forEach (method) ->
     describe "container.set #{method}", ->
-      it "should wrap app.#{method}", (sandbox, containerStub, app, logger) ->
-        promise = then: sandbox.stub()
-        promise.then.yields()
-        containerStub.inject.returns promise
-
+      it "should wrap app.#{method}", (containerStub, app, logger) ->
         factory = containerStub.set.get method
         controller = factory app, logger, containerStub
 
         controller "/", "factory"
-
+        containerStub.inject.promise.then.yield()
         app[method].should.be.calledOnce
         app[method].should.be.calledWith "/"
         containerStub.inject.should.calledOnce
