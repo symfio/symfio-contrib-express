@@ -55,7 +55,7 @@ module.exports = (container) ->
       deffered.promise
 
   methods.forEach (method) ->
-    container.set method, (app, logger) ->
+    container.set method, (app, logger, container) ->
       ->
         argumentsArray = Array::slice.call arguments
         factory = argumentsArray.pop()

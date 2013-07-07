@@ -4,32 +4,64 @@ http = require "http"
 
 
 describe "contrib-express()", ->
-  it = suite.plugin [
-    require ".."
-  ]
+  it = suite.plugin (container, containerStub) ->
+    require("..") containerStub
+
+    container.set "app", (sandbox) ->
+      app = sandbox.spy()
+      app.set = sandbox.spy()
+      app.use = sandbox.spy()
+      methods.forEach (method) ->
+        app[method] = sandbox.spy()
+      app
+
+    container.set "express", (app, sandbox) ->
+      express = sandbox.stub()
+      express.bodyParser = sandbox.spy()
+      express.logger = sandbox.spy()
+      express.errorHandler = sandbox.spy()
+      express.returns app
+      express
+
+    container.set "server", (sandbox) ->
+      server = listen: sandbox.stub()
+      server.listen.yields()
+      server
 
   describe "container.unless port", ->
-    it "should be 3000 by default", (port) ->
-      port.should.equal 3000
+    it "should be 3000 by default", (containerStub) ->
+      containerStub.unless.get("port").should.equal 3000
 
   describe "container.unless middlewares", ->
-    it "should contain bodyParser", (middlewares) ->
-      middlewares[0].name.should.equal "bodyParser"
+    it "should contain bodyParser", (containerStub, env, logger, express) ->
+      factory = containerStub.unless.get "middlewares"
+      factory env, logger, express
+      express.bodyParser.should.be.calledOnce
 
-    it "should contain logger", (middlewares) ->
-      middlewares[1].name.should.equal "logger"
+    it "should contain logger", (containerStub, env, logger, express) ->
+      factory = containerStub.unless.get "middlewares"
+      factory env, logger, express
+      express.logger.should.be.calledOnce
 
-    it "should contain errorHandler in development environment", (container) ->
-      container.set "env", "development"
-
-      container.get("middlewares").then (middlewares) ->
-        middlewares[2].name.should.equal "errorHandler"
+    it "should contain errorHandler in development environment",
+      (containerStub, env, logger, express) ->
+        factory = containerStub.unless.get "middlewares"
+        factory env, logger, express
+        express.errorHandler.should.not.be.called
+        factory "development", logger, express
+        express.errorHandler.should.be.calledOnce
 
   describe "container.set express", ->
-    it "should define custom logger", (express, logger) ->
+    # speedup test
+    require "express"
+
+    it "should define custom logger", (containerStub, logger) ->
       tokens = null
       req = method: "GET", originalUrl: "/", _startTime: new Date
       res = statusCode: 404
+
+      factory = containerStub.set.get "express"
+      express = factory logger
 
       express.logger.should.have.property "symfio"
       express.logger.symfio.should.be.a "function"
@@ -43,52 +75,46 @@ describe "contrib-express()", ->
       logger.info.lastCall.args[1].time.should.be.a "number"
 
   describe "container.set app", ->
-    it "should set env from container", (container) ->
-      container.set "env", "noop"
+    it "should set env from container", (containerStub, env, express, app) ->
+      factory = containerStub.set.get "app"
+      factory env, [], express
+      app.set.should.be.calledOnce
+      app.set.should.be.calledWith "env", env
 
-      container.get("app").then (app) ->
-        app.get("env").should.equal "noop"
-
-    it "should use middlewares", (container) ->
-      container.set "middlewares", [
-        -> "boo"
-      ]
-
-      container.get("app").then (app) ->
-        app.stack.pop().handle().should.equal "boo"
+    it "should use middlewares", (containerStub, env, express, app) ->
+      factory = containerStub.set.get "app"
+      factory env, ["middleware"], express
+      app.use.should.be.calledOnce
+      app.use.should.be.calledWith "middleware"
 
   describe "container.set server", ->
-    it "should wrap app", (app, server) ->
+    it "should wrap app", (containerStub, app) ->
+      factory = containerStub.set.get "server"
+      server = factory app
       server.should.be.instanceOf http.Server
       server.listeners("request").should.contain app
 
   describe "container.set listener", ->
-    it "should call server.listen", (container) ->
-      container.set "port", 80
-
-      container.set "server", (sandbox) ->
-        server = listen: sandbox.stub()
-        server.listen.yields()
-        server
-
-      container.inject (listener, server) ->
-        listener.listen()
-        server.listen.should.be.calledOnce
-        server.listen.should.be.calledWith 80
+    it "should call server.listen", (containerStub, logger, server) ->
+      factory = containerStub.set.get "listener"
+      listener = factory logger, server, 80
+      listener.listen()
+      server.listen.should.be.calledOnce
+      server.listen.should.be.calledWith 80
 
   methods.forEach (method) ->
     describe "container.set #{method}", ->
-      it "should wrap app.#{method}", (container) ->
-        container.set "app", (sinon) ->
-          app = {}
-          app[method] = sinon.spy()
-          app
+      it "should wrap app.#{method}", (sandbox, containerStub, app, logger) ->
+        promise = then: sandbox.stub()
+        promise.then.yields()
+        containerStub.inject.returns promise
 
-        container.get([method, "app"]).spread (controller, app) ->
-          controller "/", (port) ->
-            (req, res) ->
-              port
-          .then ->
-            app[method].should.be.calledOnce
-            app[method].should.be.calledWith "/"
-            app[method].lastCall.args[1]().should.equal 3000
+        factory = containerStub.set.get method
+        controller = factory app, logger, containerStub
+
+        controller "/", "factory"
+
+        app[method].should.be.calledOnce
+        app[method].should.be.calledWith "/"
+        containerStub.inject.should.calledOnce
+        containerStub.inject.should.calledWith "factory"
