@@ -1,9 +1,9 @@
 methods = require "methods"
-http = require "http"
-w = require "when"
 
 
 module.exports = (container) ->
+  container.require "http"
+
   container.unless "port", 3000
 
   container.unless "middlewares", (env, logger, express) ->
@@ -41,10 +41,10 @@ module.exports = (container) ->
     app.use middleware for middleware in middlewares
     app
 
-  container.set "server", (app) ->
+  container.set "server", (http, app) ->
     http.createServer app
 
-  container.set "listener", (logger, server, port) ->
+  container.set "listener", (logger, server, port, w) ->
     listen: ->
       deffered = w.defer()
 

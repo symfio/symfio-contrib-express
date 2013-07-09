@@ -1,6 +1,5 @@
 methods = require "methods"
 suite = require "symfio-suite"
-http = require "http"
 
 
 describe "contrib-express()", ->
@@ -14,6 +13,9 @@ describe "contrib-express()", ->
       methods.forEach (method) ->
         app[method] = sandbox.spy()
       app
+
+    container.set "http", (sandbox) ->
+      createServer: sandbox.stub()
 
     container.set "express", (app, sandbox) ->
       express = sandbox.stub()
@@ -88,16 +90,16 @@ describe "contrib-express()", ->
       app.use.should.be.calledWith "middleware"
 
   describe "container.set server", ->
-    it "should wrap app", (containerStub, app) ->
+    it "should wrap app", (containerStub, app, http) ->
       factory = containerStub.set.get "server"
-      server = factory app
-      server.should.be.instanceOf http.Server
-      server.listeners("request").should.contain app
+      server = factory http, app
+      http.createServer.should.be.calledOnce
+      http.createServer.should.be.calledWith app
 
   describe "container.set listener", ->
-    it "should call server.listen", (containerStub, logger, server) ->
+    it "should call server.listen", (containerStub, logger, server, w) ->
       factory = containerStub.set.get "listener"
-      listener = factory logger, server, 80
+      listener = factory logger, server, 80, w
       listener.listen()
       server.listen.should.be.calledOnce
       server.listen.should.be.calledWith 80
