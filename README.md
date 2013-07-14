@@ -46,9 +46,9 @@ Express application.
 
 `http.Server` instance for express application.
 
-### `listener`
+### `startExpressServer`
 
-Object with method `listen`. Used to start server after all plugins is loaded.
+Function used to start server after all plugins is loaded.
 
 ### `get`, `post`, `put`, `delete`, `patch`, etc.
 
