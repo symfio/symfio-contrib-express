@@ -99,11 +99,11 @@ describe "contrib-express()", ->
         http.createServer.should.be.calledOnce
         http.createServer.should.be.calledWith app
 
-  describe "container.set listener", ->
+  describe "container.set startExpressServer", ->
     it "should call server.listen", (setted, server, port) ->
-      factory = setted "listener"
-      factory().then (listener) ->
-        listener.listen()
+      factory = setted "startExpressServer"
+      factory().then (startExpressServer) ->
+        startExpressServer()
         server.listen.should.be.calledOnce
         server.listen.should.be.calledWith port
 

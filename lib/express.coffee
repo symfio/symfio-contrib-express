@@ -44,8 +44,8 @@ module.exports = (container) ->
   container.set "server", (http, app) ->
     http.createServer app
 
-  container.set "listener", (logger, server, port, w) ->
-    listen: ->
+  container.set "startExpressServer", (logger, server, port, w) ->
+    ->
       deffered = w.defer()
 
       server.listen port, ->
