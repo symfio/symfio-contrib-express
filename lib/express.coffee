@@ -44,16 +44,6 @@ module.exports = (container) ->
   container.set "server", (http, app) ->
     http.createServer app
 
-  container.set "startExpressServer", (logger, server, port, w) ->
-    ->
-      deffered = w.defer()
-
-      server.listen port, ->
-        logger.info "listen port", port: port
-        deffered.resolve()
-
-      deffered.promise
-
   methods.forEach (method) ->
     container.set method, (app, logger, container) ->
       ->
@@ -65,3 +55,13 @@ module.exports = (container) ->
         container.inject(factory).then (controller) ->
           argumentsArray.push controller
           app[method].apply app, argumentsArray
+
+  container.set "startExpressServer", (logger, server, port, w) ->
+    ->
+      deffered = w.defer()
+
+      server.listen port, ->
+        logger.info "listen port", port: port
+        deffered.resolve()
+
+      deffered.promise

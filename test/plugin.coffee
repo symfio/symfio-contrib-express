@@ -33,6 +33,10 @@ describe "contrib-express()", ->
       server.listen.yields()
       server
 
+  describe "container.require http", ->
+    it "should require", (required) ->
+      required("http").should.equal "http"
+
   describe "container.unless port", ->
     it "should be 3000 by default", (unlessed) ->
       factory = unlessed "port"
@@ -99,14 +103,6 @@ describe "contrib-express()", ->
         http.createServer.should.be.calledOnce
         http.createServer.should.be.calledWith app
 
-  describe "container.set startExpressServer", ->
-    it "should call server.listen", (setted, server, port) ->
-      factory = setted "startExpressServer"
-      factory().then (startExpressServer) ->
-        startExpressServer()
-        server.listen.should.be.calledOnce
-        server.listen.should.be.calledWith port
-
   methods.forEach (method) ->
     describe "container.set #{method}", ->
       it "should wrap app.#{method}",
@@ -121,3 +117,11 @@ describe "contrib-express()", ->
             app[method].should.be.calledWith "/"
             container.inject.should.calledOnce
             container.inject.should.calledWith "factory"
+
+  describe "container.set startExpressServer", ->
+    it "should call server.listen", (setted, server, port) ->
+      factory = setted "startExpressServer"
+      factory().then (startExpressServer) ->
+        startExpressServer()
+        server.listen.should.be.calledOnce
+        server.listen.should.be.calledWith port
